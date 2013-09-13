@@ -1,6 +1,7 @@
 *.pdf
 *.o
 *.o.d
+*.out
 **/nbproject/private/
 **/build/
 **/dist/
