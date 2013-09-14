@@ -34,9 +34,12 @@
         <compilerSet>default</compilerSet>
       </toolsSet>
       <compileType>
-        <ccTool>
-          <commandLine>-framework OpenGL -framework GLUT</commandLine>
-        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibLibItem>glut</linkerLibLibItem>
+            <linkerLibLibItem>GL</linkerLibLibItem>
+          </linkerLibItems>
+        </linkerTool>
       </compileType>
     </conf>
     <conf name="Release" type="1">

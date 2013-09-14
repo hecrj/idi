@@ -21,8 +21,8 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=GNU-Linux-x86
+CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -42,8 +42,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-framework OpenGL -framework GLUT
-CXXFLAGS=-framework OpenGL -framework GLUT
+CCFLAGS=
+CXXFLAGS=
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -52,7 +52,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-lglut -lGL
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
