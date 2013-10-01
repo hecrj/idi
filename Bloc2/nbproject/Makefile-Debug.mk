@@ -42,8 +42,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-framework GLUT -framework OpenGL
+CXXFLAGS=-framework GLUT -framework OpenGL
 
 # Fortran Compiler Flags
 FFLAGS=

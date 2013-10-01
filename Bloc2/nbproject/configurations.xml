@@ -38,6 +38,7 @@
           <incDir>
             <pElem>../lib</pElem>
           </incDir>
+          <commandLine>-framework GLUT -framework OpenGL</commandLine>
         </ccTool>
       </compileType>
     </conf>
