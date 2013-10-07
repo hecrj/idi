@@ -34,23 +34,22 @@
         <compilerSet>default</compilerSet>
       </toolsSet>
       <compileType>
-        <ccTool>
-          <commandLine>-framework GLUT -framework OpenGL</commandLine>
-        </ccTool>
         <linkerTool>
           <linkerLibItems>
             <linkerLibProjectItem>
-              <makeArtifact PL="/Users/hector0193/Proyectos/idi/Bloc2/simplegl"
+              <makeArtifact PL="simplegl"
                             CT="2"
                             CN="Debug"
                             AC="true"
                             BL="true"
-                            WD="/Users/hector0193/Proyectos/idi/Bloc2/simplegl"
+                            WD="simplegl"
                             BC="${MAKE}  -f Makefile CONF=Debug"
                             CC="${MAKE}  -f Makefile CONF=Debug clean"
                             OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libsimplegl.${CND_DLIB_EXT}">
               </makeArtifact>
             </linkerLibProjectItem>
+            <linkerLibLibItem>glut</linkerLibLibItem>
+            <linkerLibLibItem>GL</linkerLibLibItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>

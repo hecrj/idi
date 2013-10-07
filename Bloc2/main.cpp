@@ -1,10 +1,9 @@
 #include "simplegl/Engine.h"
-#include "simplegl/objects/Teapot.h"
 #include "simplegl/StateMachine.h"
 #include "simplegl/tools/RotationTool.h"
 #include "simplegl/tools/MoveTool.h"
-#include "simplegl/objects/Sphere.h"
-#include "simplegl/objects/Cone.h"
+#include "simplegl/objects/Snowman.h"
+#include "simplegl/objects/Plane.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -49,7 +48,7 @@ void keyPressed(unsigned char key, int x, int y)
 
 int main(int argc, char** argv)
 {
-    engine = new Engine("Laboratori IDI - Bloc 2");
+    engine = new Engine("IDI Laboratory - Block 2");
     states = new StateMachine();
     RotationTool* rotator = new RotationTool();
     MoveTool* mover = new MoveTool(engine->getWindow());
@@ -60,12 +59,12 @@ int main(int argc, char** argv)
     states->add('m', mover);
     
     engine->init(&argc, argv);
-    engine->addObject("sphere1", new Sphere(0, 0, 0, 0.4));
-    engine->addObject("sphere2", new Sphere(0, 0.6, 0, 0.2));
     
-    Cone* cone = new Cone(0.1, 0.6, 0, 0.1, 0.2);
-    cone->rotate(0, 90, 0);
-    engine->addObject("cone", cone);
+    Plane* plane = new Plane(0, -0.4, 0, 1.5);
+    plane->setColor(0.8, 0.8, 0.8);
+    
+    engine->addObject("plane", plane);
+    engine->addObject("snowman", new Snowman(0, 0, 0));
     
     glutDisplayFunc(refresh);
     glutReshapeFunc(reshape);

@@ -21,8 +21,8 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=GNU-MacOSX
-CND_DLIB_EXT=dylib
+CND_PLATFORM=GNU-Linux-x86
+CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
 CND_BUILDDIR=build
@@ -42,8 +42,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-framework GLUT -framework OpenGL
-CXXFLAGS=-framework GLUT -framework OpenGL
+CCFLAGS=
+CXXFLAGS=
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -52,13 +52,13 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-L/Users/hector0193/Proyectos/idi/Bloc2/simplegl/dist/Debug/GNU-MacOSX -lsimplegl
+LDLIBSOPTIONS=-Wl,-rpath,simplegl/dist/Debug/GNU-Linux-x86 -Lsimplegl/dist/Debug/GNU-Linux-x86 -lsimplegl -lglut -lGL
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2
 
-${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: /Users/hector0193/Proyectos/idi/Bloc2/simplegl/dist/Debug/GNU-MacOSX/libsimplegl.dylib
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: simplegl/dist/Debug/GNU-Linux-x86/libsimplegl.so
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -71,7 +71,7 @@ ${OBJECTDIR}/main.o: main.cpp
 
 # Subprojects
 .build-subprojects:
-	cd /Users/hector0193/Proyectos/idi/Bloc2/simplegl && ${MAKE}  -f Makefile CONF=Debug
+	cd simplegl && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -80,7 +80,7 @@ ${OBJECTDIR}/main.o: main.cpp
 
 # Subprojects
 .clean-subprojects:
-	cd /Users/hector0193/Proyectos/idi/Bloc2/simplegl && ${MAKE}  -f Makefile CONF=Debug clean
+	cd simplegl && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

@@ -9,7 +9,7 @@
             <header-extensions/>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
-                <make-dep-project>/Users/hector0193/Proyectos/idi/Bloc2/simplegl</make-dep-project>
+                <make-dep-project>simplegl</make-dep-project>
             </make-dep-projects>
             <sourceRootList/>
             <confList>
