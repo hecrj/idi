@@ -1,0 +1,6 @@
+[submodule "Bloc2/lib"]
+	path = Bloc2/lib
+	url = git@bitbucket.org:hecrj/simplegl.git
+[submodule "Bloc2/simplegl"]
+	path = Bloc2/simplegl
+	url = git@bitbucket.org:hecrj/simplegl.git

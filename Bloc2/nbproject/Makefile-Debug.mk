@@ -52,11 +52,13 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-L/Users/hector0193/Proyectos/idi/Bloc2/simplegl/dist/Debug/GNU-MacOSX -lsimplegl
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2
+
+${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: /Users/hector0193/Proyectos/idi/Bloc2/simplegl/dist/Debug/GNU-MacOSX/libsimplegl.dylib
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
@@ -65,10 +67,11 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/bloc2: ${OBJECTFILES}
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../lib -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:
+	cd /Users/hector0193/Proyectos/idi/Bloc2/simplegl && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -77,6 +80,7 @@ ${OBJECTDIR}/main.o: main.cpp
 
 # Subprojects
 .clean-subprojects:
+	cd /Users/hector0193/Proyectos/idi/Bloc2/simplegl && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
