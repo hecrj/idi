@@ -6,3 +6,9 @@
 **/build/
 **/dist/
 /deliveries/
+**/nbproject/*.mk
+**/nbproject/*.bash
+**/nbproject/*.xml
+*.mtl
+*.obj
+
