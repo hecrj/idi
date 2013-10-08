@@ -4,3 +4,6 @@
 [submodule "Bloc2/simplegl"]
 	path = Bloc2/simplegl
 	url = git@bitbucket.org:hecrj/simplegl.git
+[submodule "Bloc3/simplegl"]
+	path = Bloc3/simplegl
+	url = git@bitbucket.org:hecrj/simplegl.git
