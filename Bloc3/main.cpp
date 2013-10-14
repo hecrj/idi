@@ -50,7 +50,7 @@ void keyPressed(unsigned char key, int x, int y)
 int main(int argc, char** argv)
 {
     // ENGINES
-    engine = new Engine("IDI Laboratory - Block 2");
+    engine = new Engine("IDI Laboratory - Block 3");
     states = new StateMachine();
     
     // MAIN OBJECTS
@@ -99,8 +99,10 @@ int main(int argc, char** argv)
     glutMotionFunc(mouseMotion);
     glutKeyboardFunc(keyPressed);
     
+    // Focus the scene
+    engine->focus();
+    
     // Start loop!
-    engine->focus(1);
     engine->loop();
     
     return 0;
