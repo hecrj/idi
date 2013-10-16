@@ -6,6 +6,8 @@
 #include "simplegl/objects/Plane.h"
 #include "simplegl/objects/Model.h"
 #include "simplegl/Engine.h"
+#include "simplegl/lens/OrthogonalLens.h"
+#include "simplegl/lens/PerspectiveLens.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -18,18 +20,34 @@
 using namespace std;
 
 Engine* engine;
-Camera* camera;
+Camera* ortogonal;
+Camera* perspective;
 Scene* scene;
 StateMachine* states;
 
-void refresh()
+Lens* lens[] = { new OrthogonalLens(), new PerspectiveLens() };
+int activeLens = 0;
+
+
+void refreshPerspective()
 {
-    engine->render(camera);
+    perspective->render();
 }
 
-void reshape(int width, int height)
+void refreshOrtogonal()
 {
-    camera->reshape(width, height);
+   ortogonal->render();
+   perspective->redisplay();
+}
+
+void reshapeOrtogonal(int width, int height)
+{
+    ortogonal->reshape(width, height);
+}
+
+void reshapePerspective(int width, int height)
+{
+    perspective->reshape(width, height);
 }
 
 void mousePressed(int buttonId, int state, int x, int y)
@@ -54,7 +72,13 @@ int main(int argc, char** argv)
 {
     // ENGINES
     engine = new Engine();
-    camera = new Camera(new Viewport("IDI Laboratory - Block 3"));
+    
+    // CAMERAS
+    ortogonal = new Camera(new Viewport("IDI Laboratory - Block 3 - Orthogonal view"));
+    perspective = new Camera(new Viewport("IDI Laboratory - Block 3 - Perspective view"));
+    perspective->setLens(new PerspectiveLens());
+    
+    // SCENE
     scene = new Scene();
     states = new StateMachine();
     
@@ -76,12 +100,19 @@ int main(int argc, char** argv)
     // Positionate the legoman
     legoman->translate(0.75 - legoman->getRFBX(), -0.4 - legoman->getRFBY(), 0.75 - legoman->getRFBZ());
     
+    // Place the objects in the engine
+    scene->addObject("plane", plane);
+    scene->addObject("snowman", snowman);
+    scene->addObject("legoman", legoman);
+    
     // TOOLS
     // Rotation tool
-    RotationTool* rotator = new RotationTool(camera);
+    RotationTool* rotator = new RotationTool();
+    rotator->add(ortogonal);
+    rotator->add(perspective);
     
     // Move tool
-    MoveTool* mover = new MoveTool(camera->getViewport());
+    MoveTool* mover = new MoveTool(ortogonal->getViewport());
     mover->add(legoman); // Move the legoman
     
     // Add tools
@@ -91,23 +122,25 @@ int main(int argc, char** argv)
     // Initialize glut
     engine->init(&argc, argv);
     
-    // Initialize camera
-    camera->init();
-    
-    // Place the objects in the engine
-    scene->addObject("plane", plane);
-    scene->addObject("snowman", snowman);
-    scene->addObject("legoman", legoman);
+    // Initialize first camera
+    ortogonal->init();
     
     // Configure GLUT
-    glutDisplayFunc(refresh);
-    glutReshapeFunc(reshape);
+    glutDisplayFunc(refreshOrtogonal);
+    glutReshapeFunc(reshapeOrtogonal);
     glutMouseFunc(mousePressed);
     glutMotionFunc(mouseMotion);
     glutKeyboardFunc(keyPressed);
     
+    // Initialize second camera
+    perspective->init();
+    
+    glutDisplayFunc(refreshPerspective);
+    glutReshapeFunc(reshapePerspective);
+    
     // Focus the scene
-    camera->focus(scene);
+    ortogonal->focus(scene, 2);
+    perspective->focus(scene, 2);
     
     // Start rendering!
     engine->loop();
