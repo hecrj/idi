@@ -1,10 +1,11 @@
-#include "simplegl/Engine.h"
+#include "simplegl/Scene.h"
 #include "simplegl/StateMachine.h"
 #include "simplegl/tools/RotationTool.h"
 #include "simplegl/tools/MoveTool.h"
 #include "simplegl/objects/Snowman.h"
 #include "simplegl/objects/Plane.h"
 #include "simplegl/objects/Model.h"
+#include "simplegl/Engine.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -17,16 +18,18 @@
 using namespace std;
 
 Engine* engine;
+Camera* camera;
+Scene* scene;
 StateMachine* states;
 
 void refresh()
 {
-    engine->draw();
+    engine->render(camera);
 }
 
 void reshape(int width, int height)
 {
-    engine->getCamera()->reshape(width, height);
+    camera->reshape(width, height);
 }
 
 void mousePressed(int buttonId, int state, int x, int y)
@@ -50,7 +53,9 @@ void keyPressed(unsigned char key, int x, int y)
 int main(int argc, char** argv)
 {
     // ENGINES
-    engine = new Engine("IDI Laboratory - Block 3");
+    engine = new Engine();
+    camera = new Camera(new Viewport("IDI Laboratory - Block 3"));
+    scene = new Scene();
     states = new StateMachine();
     
     // MAIN OBJECTS
@@ -73,24 +78,26 @@ int main(int argc, char** argv)
     
     // TOOLS
     // Rotation tool
-    RotationTool* rotator = new RotationTool();
-    rotator->add(engine); // Rotates the whole engine
+    RotationTool* rotator = new RotationTool(camera);
     
     // Move tool
-    MoveTool* mover = new MoveTool(engine->getCamera()->getViewport());
+    MoveTool* mover = new MoveTool(camera->getViewport());
     mover->add(legoman); // Move the legoman
     
     // Add tools
     states->add('r', rotator); // Enable rotation when r is pressed, by default
     states->add('c', mover); // Enable mover when c is pressed
     
-    // Initialize engine
+    // Initialize glut
     engine->init(&argc, argv);
     
+    // Initialize camera
+    camera->init();
+    
     // Place the objects in the engine
-    engine->addObject("plane", plane);
-    engine->addObject("snowman", snowman);
-    engine->addObject("legoman", legoman);
+    scene->addObject("plane", plane);
+    scene->addObject("snowman", snowman);
+    scene->addObject("legoman", legoman);
     
     // Configure GLUT
     glutDisplayFunc(refresh);
@@ -100,9 +107,9 @@ int main(int argc, char** argv)
     glutKeyboardFunc(keyPressed);
     
     // Focus the scene
-    engine->focus();
+    camera->focus(scene);
     
-    // Start loop!
+    // Start rendering!
     engine->loop();
     
     return 0;
