@@ -76,7 +76,6 @@ int main(int argc, char** argv)
     // CAMERAS
     ortogonal = new Camera(new Viewport("IDI Laboratory - Block 3 - Orthogonal view"));
     perspective = new Camera(new Viewport("IDI Laboratory - Block 3 - Perspective view"));
-    perspective->setLens(new PerspectiveLens());
     
     // SCENE
     scene = new Scene();
@@ -134,6 +133,7 @@ int main(int argc, char** argv)
     
     // Initialize second camera
     perspective->init();
+    perspective->setLens(new PerspectiveLens());
     
     glutDisplayFunc(refreshPerspective);
     glutReshapeFunc(reshapePerspective);
