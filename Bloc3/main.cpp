@@ -9,6 +9,7 @@
 #include "simplegl/Engine.h"
 #include "simplegl/lens/OrthogonalLens.h"
 #include "simplegl/lens/PerspectiveLens.h"
+#include "simplegl/lens/FirstPersonLens.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -29,12 +30,12 @@ StateMachine* states;
 void refreshPerspective()
 {
     perspective->render();
+    ortogonal->redisplay();
 }
 
 void refreshOrtogonal()
 {
    ortogonal->render();
-   perspective->redisplay();
 }
 
 void reshapeOrtogonal(int width, int height)
@@ -118,21 +119,22 @@ int main(int argc, char** argv)
     engine->init(&argc, argv);
     
     // Initialize first camera
-    ortogonal->init();
+    perspective->init();
+    perspective->setLens(new FirstPersonLens());
+    perspective->translate(0, 1, 0);
     
     // Configure GLUT
-    glutDisplayFunc(refreshOrtogonal);
-    glutReshapeFunc(reshapeOrtogonal);
+    glutDisplayFunc(refreshPerspective);
+    glutReshapeFunc(reshapePerspective);
     glutMouseFunc(mousePressed);
     glutMotionFunc(mouseMotion);
     glutKeyboardFunc(keyPressed);
     
     // Initialize second camera
-    perspective->init();
-    perspective->setLens(new PerspectiveLens());
+    ortogonal->init();
     
-    glutDisplayFunc(refreshPerspective);
-    glutReshapeFunc(reshapePerspective);
+    glutDisplayFunc(refreshOrtogonal);
+    glutReshapeFunc(reshapeOrtogonal);
     
     // Focus the scene
     ortogonal->focus(scene);
