@@ -1,10 +1,11 @@
 #include "simplegl/Scene.h"
 #include "simplegl/StateMachine.h"
-#include "simplegl/tools/RotationTool.h"
+#include "simplegl/tools/NavigationTool.h"
 #include "simplegl/tools/MoveTool.h"
 #include "simplegl/objects/Snowman.h"
 #include "simplegl/objects/Plane.h"
 #include "simplegl/objects/Model.h"
+#include "simplegl/objects/Wall.h"
 #include "simplegl/Engine.h"
 #include "simplegl/lens/OrthogonalLens.h"
 #include "simplegl/lens/PerspectiveLens.h"
@@ -24,10 +25,6 @@ Camera* ortogonal;
 Camera* perspective;
 Scene* scene;
 StateMachine* states;
-
-Lens* lens[] = { new OrthogonalLens(), new PerspectiveLens() };
-int activeLens = 0;
-
 
 void refreshPerspective()
 {
@@ -65,7 +62,7 @@ void keyPressed(unsigned char key, int x, int y)
     if(key == 'h')
         states->printHelp();
     else
-        states->trigger(key);
+        states->getCurrentState()->keyPressed(key, x, y);
 }
 
 int main(int argc, char** argv)
@@ -82,41 +79,40 @@ int main(int argc, char** argv)
     states = new StateMachine();
     
     // MAIN OBJECTS
-    // Plane
-    Plane* plane = new Plane(0, -0.4, 0, 1.5);
-    plane->setColor(0.8, 0.8, 0.8);
+    // Floor
+    Plane* plane = new Plane(0, 0, 0, 10);
+    plane->setColor(0.5, 0.5, 0.5);
         
-    // Snowman
-    Snowman* snowman = new Snowman(0, 0, 0);
+    // Snowmans
+    Snowman* snowman1 = new Snowman(2.5, 0, 2.5);
+    Snowman* snowman2 = new Snowman(-2.5, 0, 2.5);
+    Snowman* snowman3 = new Snowman(-2.5, 0, -2.5);
+    Snowman* snowman4 = new Snowman(2.5, 0, -2.5);
     
-    // Legoman
-    Model* legoman = new Model();
-    legoman->load("../legoman.obj");
-
-    double scaleLego = 0.5 / legoman->getHeight();
-    legoman->scale(scaleLego, scaleLego, scaleLego); // Scale the legoman
+    // Walls
+    Wall* wall1 = new Wall(2.5, 0, 1.5, 4, 1.5, 0.2);
+    wall1->setColor(0.8, 0.8, 0.8);
     
-    // Positionate the legoman
-    legoman->translate(0.75 - legoman->getRFBX(), -0.4 - legoman->getRFBY(), 0.75 - legoman->getRFBZ());
+    Wall* wall2 = new Wall(-4.9, 0, 0, 0.2, 1.5, 10);
+    wall2->setColor(0.8, 0.8, 0.8);
     
     // Place the objects in the engine
     scene->addObject("plane", plane);
-    scene->addObject("snowman", snowman);
-    scene->addObject("legoman", legoman);
+    scene->addObject("snowman1", snowman1);
+    scene->addObject("snowman2", snowman2);
+    scene->addObject("snowman3", snowman3);
+    scene->addObject("snowman4", snowman4);
+    scene->addObject("wall1", wall1);
+    scene->addObject("wall2", wall2);
     
     // TOOLS
     // Rotation tool
-    RotationTool* rotator = new RotationTool();
-    rotator->add(ortogonal);
-    rotator->add(perspective);
-    
-    // Move tool
-    MoveTool* mover = new MoveTool(ortogonal->getViewport());
-    mover->add(legoman); // Move the legoman
-    
+    NavigationTool* navigator = new NavigationTool();
+    navigator->add(ortogonal);
+    navigator->add(perspective);
+
     // Add tools
-    states->add('r', rotator); // Enable rotation when r is pressed, by default
-    states->add('c', mover); // Enable mover when c is pressed
+    states->add('r', navigator); // Enable rotation when r is pressed, by default
     
     // Initialize glut
     engine->init(&argc, argv);
@@ -139,8 +135,8 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshapePerspective);
     
     // Focus the scene
-    ortogonal->focus(scene, 2);
-    perspective->focus(scene, 2);
+    ortogonal->focus(scene);
+    perspective->focus(scene);
     
     // Start rendering!
     engine->loop();
