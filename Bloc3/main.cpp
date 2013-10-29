@@ -30,17 +30,6 @@ StateMachine* states;
 void refreshPerspective()
 {
     perspective->render();
-    ortogonal->redisplay();
-}
-
-void refreshOrtogonal()
-{
-   ortogonal->render();
-}
-
-void reshapeOrtogonal(int width, int height)
-{
-    ortogonal->reshape(width, height);
 }
 
 void reshapePerspective(int width, int height)
@@ -58,12 +47,19 @@ void mouseMotion(int x, int y)
     states->getCurrentState()->mouseMotion(x, y);
 }
 
-void keyPressed(unsigned char key, int x, int y)
+void keyDown(unsigned char key, int x, int y)
 {
-    if(key == 'h')
-        states->printHelp();
-    else
-        states->getCurrentState()->keyPressed(key, x, y);
+    states->keyDown(key, x, y);
+}
+
+void idle()
+{
+    states->idle();
+}
+
+void keyUp(unsigned char key, int x, int y)
+{
+    states->keyUp(key, x, y);
 }
 
 int main(int argc, char** argv)
@@ -83,7 +79,7 @@ int main(int argc, char** argv)
     // Floor
     Plane* plane = new Plane(0, 0, 0, 10);
     plane->setColor(0.5, 0.5, 0.5);
-        
+    
     // Snowmans
     Snowman* snowman1 = new Snowman(2.5, 0, 2.5);
     Snowman* snowman2 = new Snowman(-2.5, 0, 2.5);
@@ -128,16 +124,10 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshapePerspective);
     glutMouseFunc(mousePressed);
     glutMotionFunc(mouseMotion);
-    glutKeyboardFunc(keyPressed);
+    glutKeyboardFunc(keyDown);
+    glutKeyboardUpFunc(keyUp);
+    glutIdleFunc(idle);
     
-    // Initialize second camera
-    ortogonal->init();
-    
-    glutDisplayFunc(refreshOrtogonal);
-    glutReshapeFunc(reshapeOrtogonal);
-    
-    // Focus the scene
-    ortogonal->focus(scene);
     perspective->focus(scene);
     
     // Start rendering!
