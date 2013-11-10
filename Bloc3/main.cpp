@@ -28,7 +28,6 @@ Engine* engine;
 StateMachine* states;
 Scene* scene;
 Scene* walls;
-Player* car;
 Camera* thirdPerson;
 Camera* firstPerson;
 PerspectiveLens* perspective = new PerspectiveLens();
@@ -95,17 +94,12 @@ void createScene()
     walls->addObject("wall1", wall1);
     walls->addObject("wall2", wall2);
     
-    // Car
-    car = new Player("porsche.obj", firstPerson);
-    car->positionateBottomCenter(0, 0, 0);
-    
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
     scene->addObject("snowman2", snowman2);
     scene->addObject("snowman3", snowman3);
     scene->addObject("snowman4", snowman4);
     scene->addObject("walls", walls);
-    scene->addObject("car", car);
 }
 
 void configureStates()
@@ -113,13 +107,7 @@ void configureStates()
     states = new StateMachine();
     
     // TOOLS
-    InspectTool* inspector = new InspectTool();
-    inspector->add(thirdPerson);
-    inspector->addToMouseRotation(thirdPerson);
-    
-    NavigationTool* navigator = new NavigationTool();
-    navigator->addToMouseRotation(firstPerson);
-    navigator->add(car);
+    InspectTool* inspector = new InspectTool(engine);
     
     ToggleScene* wallsToggle = new ToggleScene("walls", scene, walls);
     ToggleLens* lensToggle = new ToggleLens(thirdPerson);
@@ -129,9 +117,18 @@ void configureStates()
 
     // Add tools
     states->add('r', inspector);
-    states->add('f', navigator);
     states->add('v', wallsToggle);
     states->add('p', lensToggle);
+    
+    // Car
+    Player* car = new Player("porsche.obj", firstPerson);
+    car->positionateBottomCenter(0, 0, 0);
+    
+    NavigationTool* navigator = new NavigationTool();
+    navigator->add(car);
+    
+    scene->addObject("car", car);
+    states->setGlobal(navigator);
 }
 
 void configureCallbacks()
