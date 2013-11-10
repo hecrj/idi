@@ -76,7 +76,7 @@ void createScene()
     
     // Floor
     Plane* plane = new Plane(0, 0, 0, 10);
-    plane->setColor(0.5, 0.5, 0.5);
+    plane->setColor(0.6, 0.7, 1);
     
     // Snowmans
     Snowman* snowman1 = new Snowman(2.5, 0, 2.5);
