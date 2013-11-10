@@ -1,5 +1,7 @@
 #include "simplegl/Scene.h"
 #include "simplegl/StateMachine.h"
+#include "simplegl/states/ToggleScene.h"
+#include "simplegl/states/ToggleLens.h"
 #include "simplegl/tools/NavigationTool.h"
 #include "simplegl/tools/MoveTool.h"
 #include "simplegl/objects/Snowman.h"
@@ -22,10 +24,11 @@
 using namespace std;
 
 Engine* engine;
+StateMachine* states;
+Scene* scene;
+Scene* walls;
 Camera* thirdPerson;
 Camera* firstPerson;
-Scene* scene;
-StateMachine* states;
 PerspectiveLens* perspective = new PerspectiveLens();
 OrthogonalLens* orthogonal = new OrthogonalLens();
 FirstPersonLens* perspectiveFirstPerson = new FirstPersonLens();
@@ -81,18 +84,21 @@ void createScene()
     Snowman* snowman4 = new Snowman(2.5, 0, -2.5);
     
     // Walls
+    walls = new Scene();
     Wall* wall1 = new Wall(2.5, 0, 1.5, 4, 1.5, 0.2);
     Wall* wall2 = new Wall(-4.9, 0, 0, 0.2, 1.5, 10);
     wall1->setColor(0.8, 0.8, 0.8);
     wall2->setColor(0.8, 0.8, 0.8);
+    
+    walls->addObject("wall1", wall1);
+    walls->addObject("wall2", wall2);
     
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
     scene->addObject("snowman2", snowman2);
     scene->addObject("snowman3", snowman3);
     scene->addObject("snowman4", snowman4);
-    scene->addObject("wall1", wall1);
-    scene->addObject("wall2", wall2);
+    scene->addObject("walls", walls);
 }
 
 void configureStates()
@@ -106,10 +112,18 @@ void configureStates()
     
     NavigationTool* navigator = new NavigationTool();
     navigator->addToMouseRotation(firstPerson);
+    
+    ToggleScene* wallsToggle = new ToggleScene("walls", scene, walls);
+    
+    ToggleLens* lensToggle = new ToggleLens(thirdPerson);
+    lensToggle->addLens(perspective);
+    lensToggle->addLens(orthogonal);
 
     // Add tools
     states->add('r', inspector);
     states->add('f', navigator);
+    states->add('v', wallsToggle);
+    states->add('p', lensToggle);
 }
 
 void configureCallbacks()
@@ -124,7 +138,10 @@ void configureCallbacks()
 }
 
 int main(int argc, char** argv)
-{   
+{
+    // Create the engine
+    engine = new Engine();
+    
     // Viewport
     Viewport* viewport = new Viewport("IDI Laboratory - Block 3");
     
@@ -138,9 +155,6 @@ int main(int argc, char** argv)
     
     // Configure actions and states
     configureStates();
-    
-    // Create the engine
-    engine = new Engine();
     
     // Add cameras
     engine->addCamera('r', thirdPerson);
