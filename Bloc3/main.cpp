@@ -8,6 +8,7 @@
 #include "simplegl/objects/Plane.h"
 #include "simplegl/objects/Model.h"
 #include "simplegl/objects/Wall.h"
+#include "simplegl/objects/Player.h"
 #include "simplegl/Engine.h"
 #include "simplegl/lens/OrthogonalLens.h"
 #include "simplegl/lens/PerspectiveLens.h"
@@ -27,6 +28,7 @@ Engine* engine;
 StateMachine* states;
 Scene* scene;
 Scene* walls;
+Player* car;
 Camera* thirdPerson;
 Camera* firstPerson;
 PerspectiveLens* perspective = new PerspectiveLens();
@@ -93,12 +95,17 @@ void createScene()
     walls->addObject("wall1", wall1);
     walls->addObject("wall2", wall2);
     
+    // Car
+    car = new Player("porsche.obj", firstPerson);
+    car->positionateBottomCenter(0, 0, 0);
+    
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
     scene->addObject("snowman2", snowman2);
     scene->addObject("snowman3", snowman3);
     scene->addObject("snowman4", snowman4);
     scene->addObject("walls", walls);
+    scene->addObject("car", car);
 }
 
 void configureStates()
@@ -112,10 +119,11 @@ void configureStates()
     
     NavigationTool* navigator = new NavigationTool();
     navigator->addToMouseRotation(firstPerson);
+    navigator->add(car);
     
     ToggleScene* wallsToggle = new ToggleScene("walls", scene, walls);
-    
     ToggleLens* lensToggle = new ToggleLens(thirdPerson);
+    
     lensToggle->addLens(perspective);
     lensToggle->addLens(orthogonal);
 
