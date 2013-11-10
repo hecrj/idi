@@ -22,19 +22,22 @@
 using namespace std;
 
 Engine* engine;
-Camera* ortogonal;
-Camera* perspective;
+Camera* thirdPerson;
+Camera* firstPerson;
 Scene* scene;
 StateMachine* states;
+PerspectiveLens* perspective = new PerspectiveLens();
+OrthogonalLens* orthogonal = new OrthogonalLens();
+FirstPersonLens* perspectiveFirstPerson = new FirstPersonLens();
 
-void refreshPerspective()
+void refresh()
 {
-    perspective->render();
+    engine->render();
 }
 
-void reshapePerspective(int width, int height)
+void reshape(int width, int height)
 {
-    perspective->reshape(width, height);
+    engine->reshape(width, height);
 }
 
 void mousePressed(int buttonId, int state, int x, int y)
@@ -47,6 +50,12 @@ void mouseMotion(int x, int y)
     states->getCurrentState()->mouseMotion(x, y);
 }
 
+void keyUp(unsigned char key, int x, int y)
+{
+    engine->trigger(key);
+    states->keyUp(key, x, y);
+}
+
 void keyDown(unsigned char key, int x, int y)
 {
     states->keyDown(key, x, y);
@@ -57,25 +66,10 @@ void idle()
     states->idle();
 }
 
-void keyUp(unsigned char key, int x, int y)
+void createScene()
 {
-    states->keyUp(key, x, y);
-}
-
-int main(int argc, char** argv)
-{
-    // ENGINES
-    engine = new Engine();
-    
-    // CAMERAS
-    ortogonal = new Camera(new Viewport("IDI Laboratory - Block 3 - Orthogonal view"));
-    perspective = new Camera(new Viewport("IDI Laboratory - Block 3 - Perspective view"));
-    
-    // SCENE
     scene = new Scene();
-    states = new StateMachine();
     
-    // MAIN OBJECTS
     // Floor
     Plane* plane = new Plane(0, 0, 0, 10);
     plane->setColor(0.5, 0.5, 0.5);
@@ -88,12 +82,10 @@ int main(int argc, char** argv)
     
     // Walls
     Wall* wall1 = new Wall(2.5, 0, 1.5, 4, 1.5, 0.2);
-    wall1->setColor(0.8, 0.8, 0.8);
-    
     Wall* wall2 = new Wall(-4.9, 0, 0, 0.2, 1.5, 10);
+    wall1->setColor(0.8, 0.8, 0.8);
     wall2->setColor(0.8, 0.8, 0.8);
     
-    // Place the objects in the engine
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
     scene->addObject("snowman2", snowman2);
@@ -101,34 +93,69 @@ int main(int argc, char** argv)
     scene->addObject("snowman4", snowman4);
     scene->addObject("wall1", wall1);
     scene->addObject("wall2", wall2);
+}
+
+void configureStates()
+{
+    states = new StateMachine();
     
     // TOOLS
-    // Rotation tool
+    InspectTool* inspector = new InspectTool();
+    inspector->add(thirdPerson);
+    inspector->addToMouseRotation(thirdPerson);
+    
     NavigationTool* navigator = new NavigationTool();
-    navigator->add(ortogonal);
-    navigator->add(perspective);
+    navigator->addToMouseRotation(firstPerson);
 
     // Add tools
-    states->add('r', navigator); // Enable rotation when r is pressed, by default
-    
-    // Initialize glut
-    engine->init(&argc, argv);
-    
-    // Initialize first camera
-    perspective->init();
-    perspective->setLens(new FirstPersonLens());
-    perspective->translate(0, 1, 0);
-    
-    // Configure GLUT
-    glutDisplayFunc(refreshPerspective);
-    glutReshapeFunc(reshapePerspective);
+    states->add('r', inspector);
+    states->add('f', navigator);
+}
+
+void configureCallbacks()
+{
+    glutDisplayFunc(refresh);
+    glutReshapeFunc(reshape);
     glutMouseFunc(mousePressed);
     glutMotionFunc(mouseMotion);
     glutKeyboardFunc(keyDown);
     glutKeyboardUpFunc(keyUp);
     glutIdleFunc(idle);
+}
+
+int main(int argc, char** argv)
+{   
+    // Viewport
+    Viewport* viewport = new Viewport("IDI Laboratory - Block 3");
     
-    perspective->focus(scene);
+    // Create cameras
+    thirdPerson = new Camera(viewport, perspective);
+    firstPerson = new Camera(viewport, perspectiveFirstPerson);
+    firstPerson->translate(0, 1, 0);
+    
+    // Create scene
+    createScene();
+    
+    // Configure actions and states
+    configureStates();
+    
+    // Create the engine
+    engine = new Engine();
+    
+    // Add cameras
+    engine->addCamera('r', thirdPerson);
+    engine->addCamera('f', firstPerson);
+    
+    // Initialize glut
+    engine->init(&argc, argv);
+    viewport->init();
+    
+    // Configure GLUT
+    configureCallbacks();
+    
+    // Focus the scene
+    thirdPerson->focus(scene);
+    firstPerson->focus(scene);
     
     // Start rendering!
     engine->loop();
