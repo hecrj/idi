@@ -1,17 +1,16 @@
 #include "simplegl/Scene.h"
 #include "simplegl/StateMachine.h"
 #include "simplegl/tools/NavigationTool.h"
-#include "simplegl/tools/MoveTool.h"
 #include "simplegl/objects/Snowman.h"
 #include "simplegl/objects/Plane.h"
 #include "simplegl/objects/Model.h"
 #include "simplegl/objects/Wall.h"
-#include "simplegl/objects/Player.h"
 #include "simplegl/Engine.h"
 #include "simplegl/Color.h"
 #include "simplegl/lens/OrthogonalLens.h"
 #include "simplegl/lens/PerspectiveLens.h"
 #include "simplegl/lens/FirstPersonLens.h"
+#include "simplegl/objects/Light.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -24,7 +23,7 @@
 using namespace std;
 
 Engine* engine;
-Player* car;
+Scene* carScene;
 
 Scene* createScene(Camera* firstPerson)
 {
@@ -51,11 +50,19 @@ Scene* createScene(Camera* firstPerson)
     walls->addObject("wall2", wall2);
     
     // Toggle walls
-    engine->addToggle('v', walls, "Show/Hide walls");
+    engine->addAction('v', walls, "Show/Hide walls");
     
-    // Car
-    car = new Player("porsche.obj", firstPerson);
+    // Car scene
+    carScene = new Scene();
+    
+    Model* car = new Model("porsche.obj");
     car->positionateBottomCenter(0, 0, 0);
+    
+    firstPerson->translate(0, 1, 0);
+    firstPerson->rotate(0, 180, 0);
+    carScene->setCamera(firstPerson);
+    
+    carScene->addObject("car", car);
     
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
@@ -63,8 +70,8 @@ Scene* createScene(Camera* firstPerson)
     scene->addObject("snowman3", snowman3);
     scene->addObject("snowman4", snowman4);
     scene->addObject("walls", walls);
-    scene->addObject("car", car);
-    
+    scene->addObject("carScene", carScene);
+
     return scene;
 }
 
@@ -74,15 +81,45 @@ void configureStates(StateMachine* states)
     InspectTool* inspector = new InspectTool(engine);
     
     NavigationTool* navigator = new NavigationTool();
-    navigator->add(car);
+    navigator->add(carScene);
     
     // Add states
     states->setGlobal(inspector);
     states->add('r', navigator);
 }
 
-int main(int argc, char** argv)
+void configureLights(Scene* scene)
 {
+    // Global light
+    Light* light1 = new Light(GL_LIGHT1, true);
+    light1->draw();
+    
+    // Scene light
+    Light* light0 = new Light(GL_LIGHT0, false);
+    light0->setColor(Color::YELLOW);
+    light0->translate(0, 2, 0);
+    light0->toggle(); // Off by default
+
+    scene->addObject("light0", light0);
+    
+    // Car light
+    Light* light2 = new Light(GL_LIGHT2, false);
+    light2->translate(0, 1, 0);
+    light2->toggle(); // Off by default
+    
+    carScene->addObject("light", light2);
+    
+    // Add toggles
+    engine->addAction('1', light1, "Enable/Disable third person camera light");
+    engine->addAction('0', light0, "Enable/Disable scene yellow light");
+    engine->addAction('2', light2, "Enable/Disable car light");
+}
+
+int main(int argc, char **argv)
+{
+    // Initialize glut
+    Engine::initGlut(&argc, argv);
+    
     // Create the engine
     engine = new Engine();
     
@@ -94,24 +131,23 @@ int main(int argc, char** argv)
     thirdPerson->addLens(new OrthogonalLens());
     
     Camera* firstPerson = new Camera(viewport, new FirstPersonLens());
-    firstPerson->translate(0, 1, 0);
     
     // Create scene
-    Scene * scene = createScene(firstPerson);
+    Scene* scene = createScene(firstPerson);
     
     // Add cameras
-    engine->addCamera('r', thirdPerson);
-    engine->addCamera('f', firstPerson);
-    
-    // Initialize glut
-    engine->init(&argc, argv);
-    viewport->init();
-    
-    engine->configureCallbacks(viewport);
+    engine->addCamera('r', thirdPerson, "General camera");
+    engine->addCamera('f', firstPerson, "Car camera");
     
     // Focus the scene
     thirdPerson->focus(scene);
     firstPerson->focus(scene);
+    
+    // Initialize engine
+    engine->init(viewport);
+    
+    // Configure lights
+    configureLights(scene);
     
     // Start rendering!
     engine->loop();
