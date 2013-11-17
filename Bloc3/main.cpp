@@ -1,7 +1,5 @@
 #include "simplegl/Scene.h"
 #include "simplegl/StateMachine.h"
-#include "simplegl/states/ToggleScene.h"
-#include "simplegl/states/ToggleLens.h"
 #include "simplegl/tools/NavigationTool.h"
 #include "simplegl/tools/MoveTool.h"
 #include "simplegl/objects/Snowman.h"
@@ -10,6 +8,7 @@
 #include "simplegl/objects/Wall.h"
 #include "simplegl/objects/Player.h"
 #include "simplegl/Engine.h"
+#include "simplegl/Color.h"
 #include "simplegl/lens/OrthogonalLens.h"
 #include "simplegl/lens/PerspectiveLens.h"
 #include "simplegl/lens/FirstPersonLens.h"
@@ -25,58 +24,15 @@
 using namespace std;
 
 Engine* engine;
-StateMachine* states;
-Scene* scene;
-Scene* walls;
-Camera* thirdPerson;
-Camera* firstPerson;
-PerspectiveLens* perspective = new PerspectiveLens();
-OrthogonalLens* orthogonal = new OrthogonalLens();
-FirstPersonLens* perspectiveFirstPerson = new FirstPersonLens();
+Player* car;
 
-void refresh()
+Scene* createScene(Camera* firstPerson)
 {
-    engine->render();
-}
-
-void reshape(int width, int height)
-{
-    engine->reshape(width, height);
-}
-
-void mousePressed(int buttonId, int state, int x, int y)
-{
-    states->getCurrentState()->mousePressed(buttonId, state, x, y);
-}
-
-void mouseMotion(int x, int y)
-{
-    states->getCurrentState()->mouseMotion(x, y);
-}
-
-void keyUp(unsigned char key, int x, int y)
-{
-    engine->trigger(key);
-    states->keyUp(key, x, y);
-}
-
-void keyDown(unsigned char key, int x, int y)
-{
-    states->keyDown(key, x, y);
-}
-
-void idle()
-{
-    states->idle();
-}
-
-void createScene()
-{
-    scene = new Scene();
+    Scene* scene = new Scene();
     
     // Floor
     Plane* plane = new Plane(0, 0, 0, 10);
-    plane->setColor(0.6, 0.7, 1);
+    plane->setColor(Color::BLUE);
     
     // Snowmans
     Snowman* snowman1 = new Snowman(2.5, 0, 2.5);
@@ -85,14 +41,21 @@ void createScene()
     Snowman* snowman4 = new Snowman(2.5, 0, -2.5);
     
     // Walls
-    walls = new Scene();
+    Scene* walls = new Scene();
     Wall* wall1 = new Wall(2.5, 0, 1.5, 4, 1.5, 0.2);
     Wall* wall2 = new Wall(-4.9, 0, 0, 0.2, 1.5, 10);
-    wall1->setColor(0.8, 0.8, 0.8);
-    wall2->setColor(0.8, 0.8, 0.8);
+    wall1->setColor(Color::GREEN);
+    wall2->setColor(Color::GREEN);
     
     walls->addObject("wall1", wall1);
     walls->addObject("wall2", wall2);
+    
+    // Toggle walls
+    engine->addToggle('v', walls, "Show/Hide walls");
+    
+    // Car
+    car = new Player("porsche.obj", firstPerson);
+    car->positionateBottomCenter(0, 0, 0);
     
     scene->addObject("plane", plane);
     scene->addObject("snowman1", snowman1);
@@ -100,46 +63,22 @@ void createScene()
     scene->addObject("snowman3", snowman3);
     scene->addObject("snowman4", snowman4);
     scene->addObject("walls", walls);
+    scene->addObject("car", car);
+    
+    return scene;
 }
 
-void configureStates()
+void configureStates(StateMachine* states)
 {
-    states = new StateMachine();
-    
     // TOOLS
     InspectTool* inspector = new InspectTool(engine);
-    
-    ToggleScene* wallsToggle = new ToggleScene("walls", scene, walls);
-    ToggleLens* lensToggle = new ToggleLens(thirdPerson);
-    
-    lensToggle->addLens(perspective);
-    lensToggle->addLens(orthogonal);
-
-    // Add tools
-    states->add('r', inspector);
-    states->add('v', wallsToggle);
-    states->add('p', lensToggle);
-    
-    // Car
-    Player* car = new Player("porsche.obj", firstPerson);
-    car->positionateBottomCenter(0, 0, 0);
     
     NavigationTool* navigator = new NavigationTool();
     navigator->add(car);
     
-    scene->addObject("car", car);
-    states->setGlobal(navigator);
-}
-
-void configureCallbacks()
-{
-    glutDisplayFunc(refresh);
-    glutReshapeFunc(reshape);
-    glutMouseFunc(mousePressed);
-    glutMotionFunc(mouseMotion);
-    glutKeyboardFunc(keyDown);
-    glutKeyboardUpFunc(keyUp);
-    glutIdleFunc(idle);
+    // Add states
+    states->setGlobal(inspector);
+    states->add('r', navigator);
 }
 
 int main(int argc, char** argv)
@@ -148,18 +87,17 @@ int main(int argc, char** argv)
     engine = new Engine();
     
     // Viewport
-    Viewport* viewport = new Viewport("IDI Laboratory - Block 3");
+    Viewport* viewport = new Viewport("IDI Laboratory - Block 4");
     
     // Create cameras
-    thirdPerson = new Camera(viewport, perspective);
-    firstPerson = new Camera(viewport, perspectiveFirstPerson);
+    Camera* thirdPerson = new Camera(viewport, new PerspectiveLens());
+    thirdPerson->addLens(new OrthogonalLens());
+    
+    Camera* firstPerson = new Camera(viewport, new FirstPersonLens());
     firstPerson->translate(0, 1, 0);
     
     // Create scene
-    createScene();
-    
-    // Configure actions and states
-    configureStates();
+    Scene * scene = createScene(firstPerson);
     
     // Add cameras
     engine->addCamera('r', thirdPerson);
@@ -169,8 +107,7 @@ int main(int argc, char** argv)
     engine->init(&argc, argv);
     viewport->init();
     
-    // Configure GLUT
-    configureCallbacks();
+    engine->configureCallbacks(viewport);
     
     // Focus the scene
     thirdPerson->focus(scene);
