@@ -11,6 +11,7 @@
 #include "simplegl/lens/PerspectiveLens.h"
 #include "simplegl/lens/FirstPersonLens.h"
 #include "simplegl/objects/Light.h"
+#include "simplegl/togglers/Teleporter.h"
 
 #if defined(__APPLE__)
   #include <OpenGL/OpenGl.h>
@@ -97,10 +98,22 @@ void configureLights(Scene* scene)
     // Scene light
     Light* light0 = new Light(GL_LIGHT0, false);
     light0->setColor(Color::YELLOW);
-    light0->translate(0, 2, 0);
+    light0->translate(-5, 2, -5);
     light0->toggle(); // Off by default
 
     scene->addObject("light0", light0);
+    
+    // Teleport light
+    Teleporter* teleporter = new Teleporter();
+    teleporter->addObject(light0);
+    
+    teleporter->addPoint(-5, 2, -5);
+    teleporter->addPoint(-5, 2, 5);
+    teleporter->addPoint(5, 2, 5);
+    teleporter->addPoint(5, 2, -5);
+    teleporter->addPoint(0, 2, 0);
+    
+    engine->addAction('m', teleporter, "Move yellow light");
     
     // Car light
     Light* light2 = new Light(GL_LIGHT2, false);
