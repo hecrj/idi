@@ -25,6 +25,9 @@ using namespace std;
 
 Engine* engine;
 Scene* carScene;
+Light* light0;
+Light* light1;
+Light* light2;
 
 Scene* createScene(Camera* firstPerson)
 {
@@ -94,11 +97,11 @@ void configureStates()
 void configureLights(Scene* scene)
 {
     // Global light
-    Light* light1 = new Light(GL_LIGHT1, true);
+    light1 = new Light(GL_LIGHT1, true);
     light1->draw();
     
     // Scene light
-    Light* light0 = new Light(GL_LIGHT0, false);
+    light0 = new Light(GL_LIGHT0, false);
     light0->setColor(Color::YELLOW);
     light0->translate(-5, 2, -5);
     light0->toggle(); // Off by default
@@ -118,7 +121,7 @@ void configureLights(Scene* scene)
     engine->addAction('m', teleporter, "Move yellow light");
     
     // Car light
-    Light* light2 = new Light(GL_LIGHT2, false);
+    light2 = new Light(GL_LIGHT2, false);
     light2->translate(0, 1, 0);
     light2->toggle(); // Off by default
     
@@ -128,6 +131,13 @@ void configureLights(Scene* scene)
     engine->addAction('1', light1, "Enable/Disable third person camera light");
     engine->addAction('0', light0, "Enable/Disable scene yellow light");
     engine->addAction('2', light2, "Enable/Disable car light");
+}
+
+void reset()
+{
+    light1->enable();
+    light0->disable();
+    light2->disable();
 }
 
 int main(int argc, char **argv)
@@ -166,6 +176,8 @@ int main(int argc, char **argv)
     
     // Configure lights
     configureLights(scene);
+    
+    engine->setResetCallback(reset);
     
     // Start rendering!
     engine->loop();
