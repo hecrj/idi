@@ -76,8 +76,10 @@ Scene* createScene(Camera* firstPerson)
     return scene;
 }
 
-void configureStates(StateMachine* states)
+void configureStates()
 {
+    StateMachine* states = engine->getStates();
+    
     // TOOLS
     InspectTool* inspector = new InspectTool(engine);
     
@@ -158,6 +160,9 @@ int main(int argc, char **argv)
     
     // Initialize engine
     engine->init(viewport);
+    
+    // Configure states
+    configureStates();
     
     // Configure lights
     configureLights(scene);
